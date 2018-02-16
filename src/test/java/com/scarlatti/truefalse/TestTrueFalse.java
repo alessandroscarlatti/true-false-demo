@@ -47,8 +47,27 @@ public class TestTrueFalse {
     }
 
     @Test
-    public void testQualifierTrue() {
-        Qualifier qualifier = new SimpleQualifier();
+    public void testGoodQualifierTrue() {
+        testQualifierTrue(new GoodQualifier());
+    }
+
+    @Test
+    public void testGoodQualifierFalse() {
+        testQualifierFalse(new GoodQualifier());
+    }
+
+    @Test
+    public void testBadQualifierTrue() {
+        testQualifierTrue(new BadQualifier());
+    }
+
+    @Test
+    public void testBadQualifierFalse() {
+        testQualifierFalse(new BadQualifier());
+    }
+
+
+    public void testQualifierTrue(Qualifier qualifier) {
 
         List<Scenario> trueScenarios = getScenariosExpectedTrue();
 
@@ -62,10 +81,7 @@ public class TestTrueFalse {
         }
     }
 
-    @Test
-    public void testQualifierFalse() {
-        Qualifier qualifier = new SimpleQualifier();
-
+    public void testQualifierFalse(Qualifier qualifier) {
         List<Scenario> falseScenarios = getScenariosExpectedFalse();
 
         for (Scenario scenario : falseScenarios) {

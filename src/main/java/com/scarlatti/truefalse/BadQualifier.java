@@ -9,7 +9,7 @@ import java.util.List;
  * /_/ |_/_/\__/___/___/\_,_/_//_/\_,_/_/  \___/ /___/\__/\_,_/_/ /_/\_,_/\__/\__/_/
  * Friday, 2/16/2018
  */
-public class SimpleQualifier implements Qualifier {
+public class BadQualifier implements Qualifier {
 
     private List<String> adims = new ADim().trueValues();
     private List<String> bdims = new BDim().trueValues();
@@ -22,7 +22,7 @@ public class SimpleQualifier implements Qualifier {
             adims.contains(adim) &&
             bdims.contains(bdim) &&
             cdims.contains(cdim) &&
-            ddims.contains(ddim)
+            ddims.contains(ddim) || ddims.contains(adim)
         );
     }
 }
