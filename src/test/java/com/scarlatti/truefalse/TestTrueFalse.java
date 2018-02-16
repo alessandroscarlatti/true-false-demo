@@ -3,8 +3,11 @@ package com.scarlatti.truefalse;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * ______    __                         __           ____             __     __  __  _
@@ -30,15 +33,54 @@ public class TestTrueFalse {
     @Test
     public void createTrueScenarios() {
         List<Scenario> scenarios = getScenariosExpectedTrue();
+        assertEquals(81, scenarios.size());
 
         printScenarios(scenarios);
     }
 
     @Test
     public void createFalseScenarios() {
-        List<Scenario> scenarios = getScenariosExpectedTrue();
+        List<Scenario> scenarios = getScenariosExpectedFalse();
+        assertEquals(2592, scenarios.size());
 
         printScenarios(scenarios);
+    }
+
+    @Test
+    public void testQualifierTrue() {
+        Qualifier qualifier = new SimpleQualifier();
+
+        List<Scenario> trueScenarios = getScenariosExpectedTrue();
+
+        for (Scenario scenario : trueScenarios) {
+            assertTrue(qualifier.qualify(
+                scenario.getAdim(),
+                scenario.getBdim(),
+                scenario.getCdim(),
+                scenario.getDdim()
+            ));
+        }
+    }
+
+    @Test
+    public void testQualifierFalse() {
+        Qualifier qualifier = new SimpleQualifier();
+
+        List<Scenario> falseScenarios = getScenariosExpectedFalse();
+
+        for (Scenario scenario : falseScenarios) {
+            try {
+                assertFalse(qualifier.qualify(
+                    scenario.getAdim(),
+                    scenario.getBdim(),
+                    scenario.getCdim(),
+                    scenario.getDdim()
+                ));
+            } catch (AssertionError e) {
+                System.err.println("Assertion failed!" + scenario);
+                throw e;
+            }
+        }
     }
 
     /**
@@ -89,7 +131,7 @@ public class TestTrueFalse {
 
         // we'll just use the starting index as the first item
         // and the rest of the original length as the rest
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < params.size() / 2; i++) {
 
             // the "definitely false" value is:
             List<String> definitelyFalseValues = params.get(i).falseValues();
