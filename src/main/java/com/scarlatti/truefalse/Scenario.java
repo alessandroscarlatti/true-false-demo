@@ -14,6 +14,17 @@ public class Scenario {
     private String ddim;
     private boolean expectedToSucceed;
 
+    public Scenario() {
+    }
+
+    public Scenario(String adim, String bdim, String cdim, String ddim, boolean expectedToSucceed) {
+        this.adim = adim;
+        this.bdim = bdim;
+        this.cdim = cdim;
+        this.ddim = ddim;
+        this.expectedToSucceed = expectedToSucceed;
+    }
+
     @Override
     public String toString() {
         return "[" + adim + ", " + bdim + ", " + cdim + ", " + ddim + ", " + expectedToSucceed + "] ";
