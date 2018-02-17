@@ -1,5 +1,6 @@
 package com.scarlatti.truefalse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,4 +13,12 @@ import java.util.List;
 public interface TrueFalse {
     List<String> trueValues();
     List<String> falseValues();
+
+    default List<String> allValues() {
+        List<String> allValues = new ArrayList<>();
+        allValues.addAll(trueValues());
+        allValues.addAll(falseValues());
+
+        return allValues;
+    }
 }

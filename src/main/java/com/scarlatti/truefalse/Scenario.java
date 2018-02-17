@@ -25,6 +25,14 @@ public class Scenario {
         this.expectedToSucceed = expectedToSucceed;
     }
 
+    public Scenario(Scenario other) {
+        this.adim = other.adim;
+        this.bdim = other.bdim;
+        this.cdim = other.cdim;
+        this.ddim = other.ddim;
+        this.expectedToSucceed = other.expectedToSucceed;
+    }
+
     @Override
     public String toString() {
         return "[" + adim + ", " + bdim + ", " + cdim + ", " + ddim + ", " + expectedToSucceed + "] ";

@@ -3,6 +3,7 @@ package com.scarlatti.truefalse;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -22,11 +23,11 @@ public class TestTrueFalse {
      * Print the scenarios that we generate from the true/false cases.
      * So we are looking at scenarios of:
      * A | B | C | D
-     *
+     * <p>
      * each have their own true and false values sets.
-     *
+     * <p>
      * the scenario only applies when all are true.
-     *
+     * <p>
      * So we build a set of scenarios that are expected true
      * and we build a set of scenarios that are expected false
      */
@@ -40,7 +41,7 @@ public class TestTrueFalse {
 
     @Test
     public void createFalseScenarios() {
-        List<Scenario> scenarios = getScenariosExpectedFalse();
+        List<Scenario> scenarios = getScenariosExpectedFalse2();
         assertEquals(2592, scenarios.size());
 
         printScenarios(scenarios);
@@ -53,7 +54,8 @@ public class TestTrueFalse {
 
     @Test
     public void testGoodQualifierFalse() {
-        testQualifierFalse(new GoodQualifier());
+        int failures = testQualifierFalse(new GoodQualifier());
+        assertEquals(0, failures);
     }
 
     @Test
@@ -63,7 +65,8 @@ public class TestTrueFalse {
 
     @Test
     public void testBadQualifierFalse() {
-        testQualifierFalse(new BadQualifier());
+        int failures = testQualifierFalse(new BadQualifier());
+        assertTrue(failures > 0);
     }
 
 
@@ -81,8 +84,10 @@ public class TestTrueFalse {
         }
     }
 
-    public void testQualifierFalse(Qualifier qualifier) {
-        List<Scenario> falseScenarios = getScenariosExpectedFalse();
+    public int testQualifierFalse(Qualifier qualifier) {
+        List<Scenario> falseScenarios = getScenariosExpectedFalse2();
+
+        int failures = 0;
 
         for (Scenario scenario : falseScenarios) {
             try {
@@ -94,13 +99,16 @@ public class TestTrueFalse {
                 ));
             } catch (AssertionError e) {
                 System.err.println("Assertion failed!" + scenario);
-                throw e;
+                failures++;
             }
         }
+
+        return failures;
     }
 
     /**
      * This is the easy one!
+     *
      * @return scenarios expected to be true
      */
     private List<Scenario> getScenariosExpectedTrue() {
@@ -128,70 +136,87 @@ public class TestTrueFalse {
 
     /**
      * This is probably the longer one, definitely the more difficult one!
+     *
      * @return scenarios expected to be false
      */
-    private List<Scenario> getScenariosExpectedFalse() {
-
+    private List<Scenario> getScenariosExpectedFalse2() {
         List<Scenario> scenarios = new ArrayList<>();
 
-        List<TrueFalse> params = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            params.add(new ADim());
-            params.add(new BDim());
-            params.add(new CDim());
-            params.add(new DDim());
-        }
+        // iterate over all the combinations, but use a paramProvider list and indices
+        // (and just make sure that the chosen index for false always provides
+        // false values)
 
-        // need to take each param and make it the false one
-        // then change all the OTHERS to each of BOTH true and false sets
+        List<ParamsHelper2> params2 = Arrays.asList(
+            new ParamsHelper2(new ADim(), Scenario::setAdim),
+            new ParamsHelper2(new BDim(), Scenario::setBdim),
+            new ParamsHelper2(new CDim(), Scenario::setCdim),
+            new ParamsHelper2(new DDim(), Scenario::setDdim)
+        );
 
-        // we'll just use the starting index as the first item
-        // and the rest of the original length as the rest
-        for (int i = 0; i < params.size() / 2; i++) {
+        // this is the parameter we are as the
+        // definitely false one, all the others should
+        // be all possible values
+        for (int i = 0; i < params2.size(); i++) {
 
-            // the "definitely false" value is:
-            List<String> definitelyFalseValues = params.get(i).falseValues();
+            List<ParamsHelper3> paramsHelper3s = new ArrayList<>();
 
-            for (String param1 : definitelyFalseValues) {
-                assignParam2(scenarios, param1, params, i, TrueFalse::trueValues);
-                assignParam2(scenarios, param1, params, i, TrueFalse::falseValues);
+            for (int j = 0; j < params2.size(); j++) {
+                paramsHelper3s.add(new ParamsHelper3(
+                    (i == j) ? params2.get(j).trueFalse::falseValues : params2.get(j).trueFalse::allValues,
+                    params2.get(j).scenarioSetter
+                ));
             }
 
+            iterateThisParam(0, paramsHelper3s, new Scenario(), scenarios);
         }
-
 
         return scenarios;
     }
 
-//    private void assignParam1(List<Scenario> scenarios, String param1, List<TrueFalse> params, int i, ValueProvider valueProvider) {
-//            assignParam2(scenarios, param1, params, i, TrueFalse::trueValues);
-//            assignParam2(scenarios, param1, params, i, TrueFalse::falseValues);
-//    }
+    private void iterateThisParam(int i, List<ParamsHelper3> params, Scenario workingScenario, List<Scenario> scenarios) {
+        if (i == params.size()) {
+            scenarios.add(new Scenario(workingScenario));
+            return;
+        }
 
-    private void assignParam2(List<Scenario> scenarios, String param1, List<TrueFalse> params, int i, ValueProvider valueProvider) {
-        for (String param2 : valueProvider.provideValues(params.get(i + 1))) {
-            assignParam3(scenarios, param1, param2, params, i, TrueFalse::trueValues);
-            assignParam3(scenarios, param2, param2, params, i, TrueFalse::falseValues);
+        // for each of the values provided
+        // this may be all values, or it may be only false values.
+
+        for (String value : params.get(i).setProvider.provideSet()) {
+            params.get(i).scenarioSetter.setValueOnScenario(workingScenario, value);
+
+            iterateThisParam(i + 1, params, workingScenario, scenarios);
         }
     }
 
-    private void assignParam3(List<Scenario> scenarios, String param1, String param2, List<TrueFalse> params, int i, ValueProvider valueProvider) {
-        for (String param3 : valueProvider.provideValues(params.get(i + 2))) {
-            assignParam4(scenarios, param1, param2, param3, params, i, TrueFalse::trueValues);
-            assignParam4(scenarios, param2, param2, param3, params, i, TrueFalse::falseValues);
+    private static class ParamsHelper2 {
+        TrueFalse trueFalse;
+        ScenarioSetter scenarioSetter;
+
+        public ParamsHelper2(TrueFalse trueFalse, ScenarioSetter scenarioSetter) {
+            this.trueFalse = trueFalse;
+            this.scenarioSetter = scenarioSetter;
         }
     }
 
-    private void assignParam4(List<Scenario> scenarios, String param1, String param2, String param3, List<TrueFalse> params, int i, ValueProvider valueProvider) {
-        for (String param4 : valueProvider.provideValues(params.get(i + 3))) {
-            scenarios.add(new Scenario(
-                param1,
-                param2,
-                param3,
-                param4,
-                false
-            ));
+    private static class ParamsHelper3 {
+        SetProvider setProvider;
+        ScenarioSetter scenarioSetter;
+
+        public ParamsHelper3(SetProvider setProvider, ScenarioSetter scenarioSetter) {
+            this.setProvider = setProvider;
+            this.scenarioSetter = scenarioSetter;
         }
+    }
+
+    @FunctionalInterface
+    interface SetProvider {
+        List<String> provideSet();
+    }
+
+    @FunctionalInterface
+    interface ScenarioSetter {
+        void setValueOnScenario(Scenario scenario, String value);
     }
 
     @FunctionalInterface

@@ -21,8 +21,7 @@ public class BadQualifier implements Qualifier {
         return (
             adims.contains(adim) &&
             bdims.contains(bdim) &&
-            cdims.contains(cdim) &&
-            ddims.contains(ddim) || ddims.contains(adim)
+            cdims.contains(cdim) || ddims.contains(ddim)
         );
     }
 }
