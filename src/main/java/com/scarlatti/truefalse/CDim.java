@@ -10,7 +10,7 @@ import java.util.List;
  * /_/ |_/_/\__/___/___/\_,_/_//_/\_,_/_/  \___/ /___/\__/\_,_/_/ /_/\_,_/\__/\__/_/
  * Friday, 2/16/2018
  */
-public class CDim implements TrueFalse {
+public class CDim implements TrueFalse<String> {
     @Override
     public List<String> trueValues() {
         return Arrays.asList("CDim1", "CDim2", "CDim3");

@@ -10,7 +10,7 @@ import java.util.List;
  * /_/ |_/_/\__/___/___/\_,_/_//_/\_,_/_/  \___/ /___/\__/\_,_/_/ /_/\_,_/\__/\__/_/
  * Friday, 2/16/2018
  */
-public class DDim implements TrueFalse {
+public class DDim implements TrueFalse<String> {
     @Override
     public List<String> trueValues() {
         return Arrays.asList("DDim1", "DDim2", "DDim3");

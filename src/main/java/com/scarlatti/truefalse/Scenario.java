@@ -17,6 +17,10 @@ public class Scenario {
     public Scenario() {
     }
 
+    public Scenario(boolean expectedToSucceed) {
+        this.expectedToSucceed = expectedToSucceed;
+    }
+
     public Scenario(String adim, String bdim, String cdim, String ddim, boolean expectedToSucceed) {
         this.adim = adim;
         this.bdim = bdim;

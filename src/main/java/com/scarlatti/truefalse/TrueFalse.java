@@ -10,12 +10,12 @@ import java.util.List;
  * /_/ |_/_/\__/___/___/\_,_/_//_/\_,_/_/  \___/ /___/\__/\_,_/_/ /_/\_,_/\__/\__/_/
  * Friday, 2/16/2018
  */
-public interface TrueFalse {
-    List<String> trueValues();
-    List<String> falseValues();
+public interface TrueFalse<T> {
+    List<T> trueValues();
+    List<T> falseValues();
 
-    default List<String> allValues() {
-        List<String> allValues = new ArrayList<>();
+    default List<T> allValues() {
+        List<T> allValues = new ArrayList<>();
         allValues.addAll(trueValues());
         allValues.addAll(falseValues());
 
